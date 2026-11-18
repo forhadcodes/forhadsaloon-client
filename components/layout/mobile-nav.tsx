@@ -1,12 +1,12 @@
 "use client"
 
-import Link from "next/link"
 import { useState } from "react"
 import { LogOutIcon, MenuIcon } from "lucide-react"
 
 import { NavLink } from "@/components/layout/nav-link"
 import { Logo } from "@/components/layout/logo"
 import { Button } from "@/components/ui/button"
+import { LinkButton } from "@/components/ui/link-button"
 import {
   Sheet,
   SheetContent,
@@ -110,20 +110,22 @@ export function MobileNav({ user, isLoading }: MobileNavProps) {
             </div>
           ) : (
             <div className="flex flex-col gap-2 p-1">
-              <Button
+              <LinkButton
+                href={ROUTES.signIn}
                 variant="outline"
                 size="lg"
-                render={<Link href={ROUTES.signIn} onClick={closeMenu} />}
+                onClick={closeMenu}
               >
                 Sign In
-              </Button>
-              <Button
+              </LinkButton>
+              <LinkButton
+                href={ROUTES.signUp}
                 variant="brand"
                 size="lg"
-                render={<Link href={ROUTES.signUp} onClick={closeMenu} />}
+                onClick={closeMenu}
               >
                 Sign Up
-              </Button>
+              </LinkButton>
             </div>
           )}
         </div>

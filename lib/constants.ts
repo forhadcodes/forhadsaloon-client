@@ -43,27 +43,28 @@ export const DASHBOARD_HOME: Record<UserRole, string> = {
 /**
  * Home page hero slides. Each slide owns its copy so switching the image
  * also switches the message, instead of repeating one headline three times.
+ * Photos: Unsplash (free to use under the Unsplash License).
  */
 export const BANNER_SLIDES: BannerSlide[] = [
   {
-    image: "/images/banner-1.jpg",
-    alt: "Styling chairs and mirrors inside the salon",
+    image: "/images/banner-cuts.jpg",
+    alt: "Barbershop interior with vintage chairs and warm brick walls",
     eyebrow: "Signature Cuts",
     title: "Sharp Cuts, Timeless Style",
     description:
       "Precision fades, classic scissor work and beard shaping by stylists who sweat the details.",
   },
   {
-    image: "/images/banner-2.jpg",
-    alt: "Shampoo and hair treatment stations",
+    image: "/images/banner-care.jpg",
+    alt: "Stylist blow-drying and styling a client's hair",
     eyebrow: "Hair Care",
     title: "Wash, Treat, Restore",
     description:
       "Deep-cleansing washes and scalp treatments that leave your hair softer, calmer and easier to style.",
   },
   {
-    image: "/images/banner-3.jpg",
-    alt: "Elegant styling stations with arched gold mirrors",
+    image: "/images/banner-color.jpg",
+    alt: "Modern salon with round mirrors and black styling stations",
     eyebrow: "Color & Glam",
     title: "Color That Turns Heads",
     description:

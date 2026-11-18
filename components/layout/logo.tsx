@@ -28,6 +28,7 @@ export function Logo({ className }: LogoProps) {
         alt={SITE.name}
         width={795}
         height={429}
+        loading="eager"
         fetchPriority="high"
         className="h-11 w-auto object-contain transition-opacity hover:opacity-80 md:h-14"
       />

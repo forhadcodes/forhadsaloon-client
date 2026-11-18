@@ -25,3 +25,17 @@ export type BannerSlide = {
   title: string
   description: string
 }
+
+/** Values collected by the sign-in form (API wiring comes later). */
+export type SignInInput = {
+  email: string
+  password: string
+}
+
+/** Values collected by the sign-up form (API wiring comes later). */
+export type SignUpInput = {
+  name: string
+  email: string
+  password: string
+  image?: string
+}

@@ -1,12 +1,11 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { useState } from "react"
 import { ArrowRightIcon } from "lucide-react"
 
 import { ThumbnailStrip } from "@/components/thumbnail-strip"
-import { Button } from "@/components/ui/button"
+import { LinkButton } from "@/components/ui/link-button"
 import { BANNER_CTA, BANNER_SLIDES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
@@ -34,7 +33,8 @@ export function Banner() {
             alt=""
             fill
             sizes="100vw"
-            preload={index === 0}
+            loading={index === 0 ? "eager" : "lazy"}
+            fetchPriority={index === 0 ? "high" : "auto"}
             className={cn(
               "object-cover object-center transition-opacity duration-700 ease-out",
               index === activeIndex ? "opacity-100" : "opacity-0"
@@ -60,15 +60,15 @@ export function Banner() {
             {activeSlide.description}
           </p>
 
-          <Button
+          <LinkButton
+            href={BANNER_CTA.href}
             variant="brand"
             size="lg"
             className="mt-8 h-11 px-5 text-sm"
-            render={<Link href={BANNER_CTA.href} />}
           >
             {BANNER_CTA.label}
             <ArrowRightIcon aria-hidden />
-          </Button>
+          </LinkButton>
         </div>
 
         <ThumbnailStrip

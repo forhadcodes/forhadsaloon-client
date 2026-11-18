@@ -1,12 +1,10 @@
 "use client"
 
-import Link from "next/link"
-
 import { Logo } from "@/components/layout/logo"
 import { MobileNav } from "@/components/layout/mobile-nav"
 import { NavLink } from "@/components/layout/nav-link"
 import { UserMenu } from "@/components/layout/user-menu"
-import { Button } from "@/components/ui/button"
+import { LinkButton } from "@/components/ui/link-button"
 import { useCurrentUser } from "@/hooks/use-current-user"
 import { PUBLIC_NAV_LINKS, ROUTES } from "@/lib/constants"
 
@@ -44,20 +42,16 @@ export function Navbar() {
             <UserMenu user={user} />
           ) : (
             <div className="hidden items-center gap-1.5 sm:flex">
-              <Button
+              <LinkButton
+                href={ROUTES.signIn}
                 variant="ghost"
                 size="lg"
-                render={<Link href={ROUTES.signIn} />}
               >
                 Sign In
-              </Button>
-              <Button
-                variant="brand"
-                size="lg"
-                render={<Link href={ROUTES.signUp} />}
-              >
+              </LinkButton>
+              <LinkButton href={ROUTES.signUp} variant="brand" size="lg">
                 Sign Up
-              </Button>
+              </LinkButton>
             </div>
           )}
 
