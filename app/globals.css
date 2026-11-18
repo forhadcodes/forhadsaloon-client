@@ -21,6 +21,9 @@
     --color-chart-2: var(--chart-2);
     --color-chart-1: var(--chart-1);
     --color-ring: var(--ring);
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
+    --color-brand-light: var(--brand-light);
     --color-input: var(--input);
     --color-border: var(--border);
     --color-destructive: var(--destructive);
@@ -66,6 +69,11 @@
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.708 0 0);
+    /* SalonBook accent: warm bronze used for logo mark, CTAs and active states. */
+    --brand: oklch(0.63 0.11 63);
+    --brand-foreground: oklch(0.99 0.01 90);
+    /* Lighter accent for text/rings placed on dark photos in both themes. */
+    --brand-light: oklch(0.86 0.08 80);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
@@ -101,6 +109,8 @@
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: oklch(0.556 0 0);
+    --brand: oklch(0.79 0.11 72);
+    --brand-foreground: oklch(0.2 0.02 70);
     --chart-1: oklch(0.87 0 0);
     --chart-2: oklch(0.556 0 0);
     --chart-3: oklch(0.439 0 0);
