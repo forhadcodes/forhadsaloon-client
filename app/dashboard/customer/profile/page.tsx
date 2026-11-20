@@ -1,8 +1,5 @@
-export default function Page() {
-  return <div>
-    <h1 className="font-serif text-3xl">My Profile</h1>
-    <p className="mt-2 text-base-content/60">Coming soon.</p>
-  </div>
+import { ProfileForm } from "@/components/profile/profile-form"
+
+export default function CustomerProfilePage() {
+  return <ProfileForm />
 }
-
-
