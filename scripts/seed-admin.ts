@@ -1,6 +1,9 @@
 import { config } from "dotenv"
 
+// .env.local wins (same precedence as Next.js); .env is the fallback for
+// setups that keep all values in a single file.
 config({ path: ".env.local" })
+config({ path: ".env" })
 
 const { name, email, password } = {
   name: process.env.ADMIN_NAME,
