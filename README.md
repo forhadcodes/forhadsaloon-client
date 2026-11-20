@@ -1,21 +1,58 @@
-# Next.js template
+# SalonBook (Client)
 
-This is a Next.js template with shadcn/ui.
+SalonBook is a salon appointment booking platform. Customers browse services, request appointments, and pay securely with Stripe after an admin confirms the booking. This repository is the Next.js client, which also hosts Better Auth (email/password + Google) and the JWT/JWKS endpoint used by the Express API.
 
-## Adding components
+## Important Features
 
-To add components to your app, run the following command:
+- Public home page with featured services, dynamic service categories and a responsive browse page (name search, category filter, price sorting, URL-synced filters).
+- Protected service details page with date/time availability and an appointment request form.
+- Customer dashboard: appointment stats, own appointments with details, cancellation of pending requests, Pay Now via Stripe Checkout.
+- Admin dashboard: service CRUD with ImgBB uploads, appointment review/confirm/cancel, customer block/unblock, statistics and a read-only transactions table.
+- Role-aware navigation, server-side session/role/blocked guards, instant session updates, toasts, skeletons and empty/error states.
+- DaisyUI "salon" theme, Playfair Display + Inter fonts, fully responsive from 360px upward.
+
+## Technology Stack
+
+Next.js 16 (App Router), TypeScript, Tailwind CSS 4, DaisyUI 5, Better Auth (MongoDB adapter + JWT plugin), MongoDB driver, react-hook-form, zod, react-hot-toast, lucide-react. Deployed on Vercel.
+
+## Installation
 
 ```bash
-npx shadcn@latest add button
+npm install
+cp .env.example .env.local
 ```
 
-This will place the ui components in the `components` directory.
+Fill in `.env.local` with your own values (never commit it). Use the same `MONGODB_URI` database as the server.
 
-## Using components
+## Run Locally
 
-To use the components in your app, import them as follows:
+```bash
+# 1. Start the Express server (separate salonbook-server repo) on port 5000
+# 2. Create the admin account (idempotent; uses ADMIN_* values from .env.local)
+npm run seed:admin
 
-```tsx
-import { Button } from "@/components/ui/button";
+# 3. Start the client
+npm run dev
 ```
+
+Open http://localhost:3000. Other useful commands: `npm run typecheck`, `npm run lint`, `npm run build`.
+
+The Stripe webhook is forwarded to the **server** repo with the Stripe CLI:
+`stripe listen --forward-to localhost:5000/api/webhooks/stripe`
+
+## Required Environment Variables
+
+`MONGODB_URI`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_API_URL`
+
+Seed script only (local, never deployed): `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+
+Stripe and ImgBB keys must never be present in this repository — they live only in the server repo.
+
+## Live Website
+
+To be added after deployment.
+
+## Repositories
+
+- Client: https://github.com/forhadsaloon/salonbook-client
+- Server: https://github.com/forhadsaloon/salonbook-server
