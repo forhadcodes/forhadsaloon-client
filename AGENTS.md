@@ -5,7 +5,7 @@
 2. Paste **one Step at a time**, in order. Each step ends with tests and exact git commits. Do not move on until the tests pass.
 3. Steps are ordered so that everything you build can be tested when you build it (Better Auth exists before the server JWT middleware, admin service CRUD exists before Home/Browse need data, and so on).
 4. The last section is a **traceability matrix**: every requirement in the docx mapped to the step that delivers it.
-
+5. Be concise. Output only required code changes without long explanations.
 > The requirement video `A9_CAT_002.mp4` could not be reviewed when this prompt was written. If it adds anything beyond the docx, paste it into the "EXTRA REQUIREMENTS FROM VIDEO" block in Section 0.
 
 ---
@@ -516,3 +516,13 @@ Then write a 60-second demo script (the exact click path for: customer books -> 
 - **Better Auth runs in the Next.js app**, and Express verifies its JWT through the JWKS endpoint. This avoids cross-domain cookie problems between two Vercel domains while still meeting "JWT verification middleware on the Express backend".
 - **Payments are USD** in Stripe test mode. Amounts are stored in major units (e.g. 45.00).
 - **Deleting a service that has appointments is blocked** (deactivate instead) so references never break.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

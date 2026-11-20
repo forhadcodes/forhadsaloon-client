@@ -42,7 +42,6 @@ export const auth = betterAuth({
   ...(google ? { socialProviders: { google } } : {}),
 
   user: {
-    modelName: "users",
     additionalFields: {
       role: { type: "string", defaultValue: "customer", input: false },
       isBlocked: { type: "boolean", defaultValue: false, input: false },
