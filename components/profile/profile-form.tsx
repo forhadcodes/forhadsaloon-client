@@ -123,7 +123,8 @@ export function ProfileForm() {
       await profileApi.update({
         name: values.name.trim(),
         image: image || undefined,
-        phone: values.phone.trim() || undefined,
+        // Send "" so the whitelisted PATCH can clear a previously saved phone.
+        phone: values.phone.trim(),
       })
       toast.success("Your profile has been updated.")
       await authClient.getSession()
