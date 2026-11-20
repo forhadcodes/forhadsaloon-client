@@ -9,7 +9,13 @@ export function formatPrice(amount: number): string {
   }).format(amount)
 }
 
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
+/** Appointment dates are stored at UTC midnight; they are dates, not instants. */
+const UTC_MIDNIGHT = /^\d{4}-\d{2}-\d{2}T00:00:00(?:\.000)?Z$/
+
 export function formatDate(value: string | Date): string {
+  const isDateOnly =
+    typeof value === "string" && (DATE_ONLY.test(value) || UTC_MIDNIGHT.test(value))
   const date = typeof value === "string" ? new Date(value) : value
   if (Number.isNaN(date.getTime())) return "—"
 
@@ -17,6 +23,8 @@ export function formatDate(value: string | Date): string {
     day: "numeric",
     month: "short",
     year: "numeric",
-    timeZone: value instanceof Date ? SALON_TIMEZONE : "UTC",
+    // Date-only values must stay in UTC or they shift a day in Asia/Dhaka.
+    // Real timestamps (createdAt, paid date) must render in the salon timezone.
+    timeZone: isDateOnly ? "UTC" : SALON_TIMEZONE,
   }).format(date)
 }
