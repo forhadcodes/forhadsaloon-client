@@ -2,32 +2,30 @@
 
 import { useRouter } from "next/navigation"
 import { useState } from "react"
+import toast from "react-hot-toast"
 
 import { signOut } from "@/lib/auth-client"
-import { ROUTES } from "@/lib/constants"
+import { AUTH_MESSAGES, ROUTES } from "@/lib/constants"
 
-/**
- * Shared sign-out behaviour so the profile dropdown and the mobile menu
- * cannot drift apart. Better Auth updates the session store, which makes
- * the navbar switch back to its signed-out state immediately.
- */
 export function useSignOut() {
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
 
   async function handleSignOut() {
     if (isSigningOut) return
-
     setIsSigningOut(true)
-    try {
-      const { error } = await signOut()
-      if (error) return
 
-      router.push(ROUTES.home)
-      router.refresh()
-    } finally {
-      setIsSigningOut(false)
+    const { error } = await signOut()
+    setIsSigningOut(false)
+
+    if (error) {
+      toast.error("Could not sign out. Please try again.")
+      return
     }
+
+    toast.success("Signed out successfully.")
+    router.push(ROUTES.home)
+    router.refresh()
   }
 
   return { handleSignOut, isSigningOut }
