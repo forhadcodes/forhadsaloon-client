@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import {
   Brush,
   Droplets,
@@ -27,6 +27,15 @@ const ICON_MAP: Record<string, typeof Scissors> = {
   Makeup: Brush,
   "Manicure & Pedicure": Hand,
   "Spa & Massage": Flower2,
+}
+
+/** Same container as the navbar and footer, so every state stays aligned. */
+function SectionContainer({ children }: { children: ReactNode }) {
+  return (
+    <section className="py-12 md:py-14">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{children}</div>
+    </section>
+  )
 }
 
 export function ServiceCategories() {
@@ -72,29 +81,37 @@ export function ServiceCategories() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {Array.from({ length: 7 }).map((_, index) => (
-          <Skeleton key={index} className="h-48 w-full rounded-2xl" />
-        ))}
-      </div>
+      <SectionContainer>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 7 }).map((_, index) => (
+            <Skeleton key={index} className="h-48 w-full rounded-2xl" />
+          ))}
+        </div>
+      </SectionContainer>
     )
   }
 
   if (error) {
-    return <ErrorState message={error} onRetry={() => setReloadKey((key) => key + 1)} />
+    return (
+      <SectionContainer>
+        <ErrorState message={error} onRetry={() => setReloadKey((key) => key + 1)} />
+      </SectionContainer>
+    )
   }
 
   if (categories.every((category) => category.count === 0)) {
     return (
-      <EmptyState
-        title="No services found"
-        message="Try a different category or browse all services."
-      />
+      <SectionContainer>
+        <EmptyState
+          title="No services found"
+          message="Try a different category or browse all services."
+        />
+      </SectionContainer>
     )
   }
 
   return (
-    <section className="py-12 md:py-14">
+    <SectionContainer>
       <SectionHeading
         title="Salon Service Categories"
         subtitle="Choose a category to filter services"
@@ -126,6 +143,6 @@ export function ServiceCategories() {
           )
         })}
       </div>
-    </section>
+    </SectionContainer>
   )
 }

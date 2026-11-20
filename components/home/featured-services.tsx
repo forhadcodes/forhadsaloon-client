@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useEffect, useState, type ReactNode } from "react"
 import Image from "next/image"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
@@ -13,6 +13,15 @@ import { formatPrice } from "@/lib/utils"
 import { Service } from "@/lib/types"
 
 const PAGE_SIZE = 6
+
+/** Same container as the navbar and footer, so every state stays aligned. */
+function SectionContainer({ children }: { children: ReactNode }) {
+  return (
+    <section className="py-12 md:py-14">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">{children}</div>
+    </section>
+  )
+}
 
 export function FeaturedServices() {
   const [data, setData] = useState<{ items: Service[]; total: number; page: number; pages: number } | null>(
@@ -58,44 +67,48 @@ export function FeaturedServices() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="rounded-2xl h-64 w-full" />
-        ))}
-      </div>
+      <SectionContainer>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-64 w-full rounded-2xl" />
+          ))}
+        </div>
+      </SectionContainer>
     )
   }
 
   if (error) {
-    return <ErrorState message={error} onRetry={() => setReloadKey((key) => key + 1)} />
+    return (
+      <SectionContainer>
+        <ErrorState message={error} onRetry={() => setReloadKey((key) => key + 1)} />
+      </SectionContainer>
+    )
   }
 
   if (!data || data.items.length === 0) {
     return (
-      <EmptyState
-        title="No featured services"
-        message="Services will appear here once the admin adds them."
-      />
+      <SectionContainer>
+        <EmptyState
+          title="No featured services"
+          message="Services will appear here once the admin adds them."
+        />
+      </SectionContainer>
     )
   }
 
   return (
-    <section className="py-12">
+    <SectionContainer>
       <SectionHeading
         title="Featured Services"
         subtitle={subtitle}
         action={
-          <LinkButton
-            href={ROUTES.services}
-            variant="link"
-            size="sm"
-          >
+          <LinkButton href={ROUTES.services} variant="link" size="sm">
             View all services
           </LinkButton>
         }
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {data.items.map((service) => (
           <article
             key={service.id}
@@ -135,6 +148,6 @@ export function FeaturedServices() {
           </article>
         ))}
       </div>
-    </section>
+    </SectionContainer>
   )
 }
