@@ -39,3 +39,43 @@ export type SignUpInput = {
   password: string
   image?: string
 }
+
+export type Service = {
+  id: string
+  serviceName: string
+  category: string
+  description: string
+  price: number
+  duration: number
+  image: string
+  status: "active" | "inactive"
+  createdAt?: string
+}
+
+export type Appointment = {
+  id: string
+  serviceId: string | { serviceName: string; image: string; category: string; duration: number; price?: number }
+  customerId: string | { name: string; email: string; phone?: string; image?: string | null }
+  appointmentDate: string
+  timeSlot: string
+  message?: string
+  servicePrice: number
+  paymentStatus: "unpaid" | "paid"
+  status: "pending" | "confirmed" | "cancelled"
+  createdAt: string
+  transaction?: { amount: number; currency: string; createdAt: string }
+}
+
+export type Transaction = {
+  id: string
+  appointmentId: string | { appointmentDate: string; timeSlot: string; serviceName?: string }
+  customerId: string | { name: string; email: string }
+  amount: number
+  currency: string
+  stripeSessionId: string
+  status: "paid" | "failed"
+  createdAt: string
+}
+
+export type ApiEnvelope<T> = { success: boolean; message?: string; data: T }
+export type Paginated<T> = { items: T[]; total: number; page: number; pages: number }
