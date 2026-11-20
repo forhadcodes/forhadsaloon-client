@@ -1,21 +1,22 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useState } from "react"
-import { Skeleton } from "@/components/ui/skeleton"
-import { ErrorState } from "@/components/ui/error-state"
-import { EmptyState } from "@/components/ui/empty-state"
-import { SectionHeading } from "@/components/ui/section-heading"
-import { LinkButton } from "@/components/ui/link-button"
-import { useRouter } from "next/navigation"
 import {
-  Scissors,
-  Palette,
-  Droplets,
-  ScanFace,
   Brush,
-  Hand,
+  Droplets,
   Flower2,
+  Hand,
+  Palette,
+  ScanFace,
+  Scissors,
 } from "lucide-react"
+
+import { EmptyState } from "@/components/ui/empty-state"
+import { ErrorState } from "@/components/ui/error-state"
+import { LinkButton } from "@/components/ui/link-button"
+import { SectionHeading } from "@/components/ui/section-heading"
+import { Skeleton } from "@/components/ui/skeleton"
 import { CATEGORIES, ROUTES } from "@/lib/constants"
 
 const ICON_MAP: Record<string, typeof Scissors> = {
@@ -23,7 +24,7 @@ const ICON_MAP: Record<string, typeof Scissors> = {
   "Hair Coloring": Palette,
   "Hair Treatment": Droplets,
   "Facial & Skincare": ScanFace,
-  "Makeup": Brush,
+  Makeup: Brush,
   "Manicure & Pedicure": Hand,
   "Spa & Massage": Flower2,
 }
@@ -33,7 +34,6 @@ export function ServiceCategories() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
-  const router = useRouter()
 
   useEffect(() => {
     let cancelled = false
@@ -42,11 +42,7 @@ export function ServiceCategories() {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"}/api/services/categories`,
-          {
-            method: "GET",
-            headers: {},
-            credentials: "omit",
-          },
+          { method: "GET", credentials: "omit" },
         )
         const payload = (await res.json()) as {
           success: boolean
@@ -54,32 +50,31 @@ export function ServiceCategories() {
           message?: string
         }
         if (!res.ok || !payload?.data) throw new Error(payload?.message ?? "Failed")
-        const dataFromPayload = payload.data
-        if (!cancelled && dataFromPayload) {
-          const mapped: { name: string; count: number }[] = CATEGORIES.map((cat) => {
-            const found = dataFromPayload.items.find((i) => i.name === cat)
-            return { name: cat, count: found ? found.count : 0 }
-          })
-          setCategories(mapped)
-          setLoading(false)
-        }
+
+        setCategories(
+          CATEGORIES.map((name) => ({
+            name,
+            count: payload.data?.items.find((item) => item.name === name)?.count ?? 0,
+          })),
+        )
       } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Could not load categories.")
-          setLoading(false)
-        }
+        if (!cancelled) setError(e instanceof Error ? e.message : "Could not load categories.")
+      } finally {
+        if (!cancelled) setLoading(false)
       }
     }
 
     void load()
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [reloadKey])
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {Array.from({ length: 7 }).map((_, i) => (
-          <Skeleton key={i} className="rounded-2xl h-48 w-full" />
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {Array.from({ length: 7 }).map((_, index) => (
+          <Skeleton key={index} className="h-48 w-full rounded-2xl" />
         ))}
       </div>
     )
@@ -89,8 +84,7 @@ export function ServiceCategories() {
     return <ErrorState message={error} onRetry={() => setReloadKey((key) => key + 1)} />
   }
 
-  // empty state: if the URL filtered to a category that has 0 services
-  if (categories.length > 0 && categories.every((c) => c.count === 0)) {
+  if (categories.every((category) => category.count === 0)) {
     return (
       <EmptyState
         title="No services found"
@@ -100,40 +94,35 @@ export function ServiceCategories() {
   }
 
   return (
-    <section className="py-12">
+    <section className="py-12 md:py-14">
       <SectionHeading
-        title="Salon Categories"
+        title="Salon Service Categories"
         subtitle="Choose a category to filter services"
         action={
-          <LinkButton
-            href={ROUTES.services}
-            variant="link"
-            size="sm"
-          >
+          <LinkButton href={ROUTES.services} variant="link" size="sm">
             Browse all
           </LinkButton>
         }
       />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {categories.map((cat) => {
-          const Icon = ICON_MAP[cat.name]
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {categories.map((category) => {
+          const Icon = ICON_MAP[category.name]
           return (
-            <article
-              key={cat.name}
-              className="group rounded-2xl border border-base-300 bg-base-100 p-4 hover:bg-base-200 transition-colors duration-150 cursor-pointer"
-              onClick={() => router.push(`${ROUTES.services}?category=${encodeURIComponent(cat.name)}`)}
-              role="button"
-              tabIndex={0}
-              aria-label={`Filter by ${cat.name} (${cat.count} services)`}
+            <Link
+              key={category.name}
+              href={`${ROUTES.services}?category=${encodeURIComponent(category.name)}`}
+              aria-label={`Browse ${category.name} services (${category.count} available)`}
+              className="card-salon block p-4 outline-none transition-shadow duration-150 hover:shadow-md focus-visible:ring-2 focus-visible:ring-primary"
             >
-              <div className="h-12 w-12 rounded-xl flex items-center justify-center mb-3">
-                <Icon className="size-6" />
-              </div>
-
-              <h3 className="text-sm font-medium text-base-content line-clamp-1">{cat.name}</h3>
-              <p className="text-xs text-base-content/60">{cat.count} service{cat.count === 1 ? "" : "s"}</p>
-            </article>
+              <span className="mb-3 grid size-12 place-items-center rounded-xl bg-primary/10 text-primary">
+                <Icon className="size-6" aria-hidden />
+              </span>
+              <h3 className="line-clamp-1 text-sm font-medium">{category.name}</h3>
+              <p className="text-xs text-base-content/60">
+                {category.count} service{category.count === 1 ? "" : "s"}
+              </p>
+            </Link>
           )
         })}
       </div>
