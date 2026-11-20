@@ -1,5 +1,16 @@
 import { authClient, signOut } from "@/lib/auth-client"
 import { API_URL, ROUTES } from "@/lib/constants"
+import type {
+  AdminStats,
+  Appointment,
+  AppointmentStats,
+  Paginated,
+  PaymentSession,
+  Service,
+  ServiceCategoryCount,
+  Transaction,
+  UserSummary,
+} from "@/lib/types"
 
 export class ApiRequestError extends Error {
   readonly status: number
@@ -149,4 +160,103 @@ export const api = {
   post: <T>(path: string, body?: unknown) => request<T>(path, { method: "POST", body }),
   patch: <T>(path: string, body?: unknown) => request<T>(path, { method: "PATCH", body }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+}
+
+const query = (params: Record<string, string | number | undefined>) => {
+  const search = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== "" && value !== null) search.set(key, String(value))
+  }
+  const serialized = search.toString()
+  return serialized ? `?${serialized}` : ""
+}
+
+/** Public + protected service reads. */
+export const servicesApi = {
+  list: (params: { search?: string; category?: string; sort?: string; page?: number; limit?: number }, signal?: AbortSignal) =>
+    api.get<Paginated<Service>>(`/api/services${query(params)}`, signal),
+  featured: (limit = 6, signal?: AbortSignal) =>
+    api.get<{ items: Service[]; total: number }>(`/api/services/featured${query({ limit })}`, signal),
+  categories: (signal?: AbortSignal) =>
+    api.get<{ items: ServiceCategoryCount[] }>("/api/services/categories", signal),
+  byId: (id: string, signal?: AbortSignal) => api.get<Service>(`/api/services/${id}`, signal),
+}
+
+export type CreateAppointmentInput = {
+  serviceId: string
+  appointmentDate: string
+  timeSlot: string
+  message?: string
+}
+
+/** Appointment endpoints (all require a signed-in user). */
+export const appointmentsApi = {
+  create: (input: CreateAppointmentInput) => api.post<Appointment>("/api/appointments", input),
+  availability: (date: string, signal?: AbortSignal) =>
+    api.get<{ date: string; availableSlots: string[]; takenSlots: string[] }>(
+      `/api/appointments/availability${query({ date })}`,
+      signal,
+    ),
+  my: (params: { status?: string; page?: number }, signal?: AbortSignal) =>
+    api.get<Paginated<Appointment>>(`/api/appointments/my${query(params)}`, signal),
+  stats: (signal?: AbortSignal) => api.get<AppointmentStats>("/api/appointments/my/stats", signal),
+  byId: (id: string, signal?: AbortSignal) => api.get<Appointment>(`/api/appointments/${id}`, signal),
+  cancel: (id: string) => api.patch<Appointment>(`/api/appointments/${id}/cancel`),
+  adminList: (params: { status?: string; page?: number }, signal?: AbortSignal) =>
+    api.get<Paginated<Appointment>>(`/api/admin/appointments${query(params)}`, signal),
+  adminById: (id: string, signal?: AbortSignal) =>
+    api.get<Appointment>(`/api/admin/appointments/${id}`, signal),
+  adminConfirm: (id: string) => api.patch<Appointment>(`/api/admin/appointments/${id}/confirm`),
+  adminCancel: (id: string) => api.patch<Appointment>(`/api/admin/appointments/${id}/cancel`),
+}
+
+/** Read-only payment status + Stripe checkout redirect. */
+export const paymentsApi = {
+  checkout: (appointmentId: string) =>
+    api.post<{ url: string }>("/api/payments/create-checkout-session", { appointmentId }),
+  session: (sessionId: string, signal?: AbortSignal) =>
+    api.get<PaymentSession>(`/api/payments/session/${encodeURIComponent(sessionId)}`, signal),
+  adminTransactions: (params: { status?: string; page?: number }, signal?: AbortSignal) =>
+    api.get<Paginated<Transaction>>(`/api/admin/transactions${query(params)}`, signal),
+}
+
+export type UpdateProfileInput = { name?: string; image?: string; phone?: string }
+
+/** Current user profile + admin management. */
+export const profileApi = {
+  get: (signal?: AbortSignal) => api.get<UserSummary>("/api/profile", signal),
+  update: (input: UpdateProfileInput) => api.patch<UserSummary>("/api/profile", input),
+  adminUsers: (params: { search?: string; page?: number }, signal?: AbortSignal) =>
+    api.get<Paginated<UserSummary>>(`/api/admin/users${query(params)}`, signal),
+  adminUser: (id: string, signal?: AbortSignal) =>
+    api.get<UserSummary & { appointmentCounts?: AppointmentStats }>(
+      `/api/admin/users/${id}`,
+      signal,
+    ),
+  block: (id: string) => api.patch<{ id: string; isBlocked: boolean }>(`/api/admin/users/${id}/block`),
+  unblock: (id: string) =>
+    api.patch<{ id: string; isBlocked: boolean }>(`/api/admin/users/${id}/unblock`),
+  stats: (signal?: AbortSignal) => api.get<AdminStats>("/api/admin/stats", signal),
+}
+
+export type ServiceInput = {
+  serviceName: string
+  category: string
+  description: string
+  price: number
+  duration: number
+  image: string
+  status?: "active" | "inactive"
+}
+
+/** Admin service mutations. */
+export const adminServicesApi = {
+  list: (params: { search?: string; category?: string; status?: string; page?: number }, signal?: AbortSignal) =>
+    api.get<Paginated<Service>>(`/api/admin/services${query(params)}`, signal),
+  create: (input: ServiceInput) => api.post<Service>("/api/admin/services", input),
+  update: (id: string, input: Partial<ServiceInput>) =>
+    api.patch<Service>(`/api/admin/services/${id}`, input),
+  setStatus: (id: string, status: "active" | "inactive") =>
+    api.patch<Service>(`/api/admin/services/${id}/status`, { status }),
+  delete: (id: string) => api.delete<{ id: string }>(`/api/admin/services/${id}`),
 }
