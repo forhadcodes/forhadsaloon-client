@@ -1,103 +1,88 @@
 import { betterAuth } from "better-auth"
-import { APIError } from "better-auth/api"
+import { APIError, createAuthMiddleware } from "better-auth/api"
+import { jwt } from "better-auth/plugins"
 import { nextCookies } from "better-auth/next-js"
 import { mongodbAdapter } from "@better-auth/mongo-adapter"
-import { MongoClient } from "mongodb"
 
 import { AUTH_MESSAGES } from "@/lib/constants"
+import { salonDb, mongoClient } from "@/lib/mongodb"
 
-/** Atlas database that holds the four collections described in the brief. */
-const DB_NAME = "forhadsaloondb"
+const baseURL = process.env.BETTER_AUTH_URL ?? "http://localhost:3000"
+const secret = process.env.BETTER_AUTH_SECRET
+if (!secret) throw new Error("BETTER_AUTH_SECRET is not configured.")
 
-/**
- * The brief names this variable `MONGODB_URI`; the older `BETTER_AUTH_DB_URI`
- * key is still accepted so an existing local .env keeps working.
- */
-const mongoUri = process.env.MONGODB_URI ?? process.env.BETTER_AUTH_DB_URI
-
-if (!mongoUri) {
-  throw new Error(
-    "MongoDB is not configured. Add MONGODB_URI to your .env file."
-  )
-}
-
-/**
- * Next.js re-evaluates modules on every hot reload in development, so a fresh
- * MongoClient per reload would leak connections. Reuse one client instead.
- */
-const globalForMongo = globalThis as typeof globalThis & {
-  mongoClient?: MongoClient
-}
-
-const client = globalForMongo.mongoClient ?? new MongoClient(mongoUri)
-globalForMongo.mongoClient = client
-
-const db = client.db(DB_NAME)
-
-/** Google is optional: only enable it once both OAuth keys exist. */
-const googleProvider =
+const google =
   process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
     ? {
         clientId: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       }
-    : null
+    : undefined
+
+function passwordIsValid(value: unknown): boolean {
+  return (
+    typeof value === "string" &&
+    value.length >= 6 &&
+    /[A-Z]/.test(value) &&
+    /[a-z]/.test(value)
+  )
+}
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL,
-  secret: process.env.BETTER_AUTH_SECRET,
+  baseURL,
+  secret,
+  trustedOrigins: [baseURL],
 
   emailAndPassword: {
     enabled: true,
-    // Matches the rules in lib/validation.ts so client and server agree.
-    minPasswordLength: 8,
+    minPasswordLength: 6,
+    autoSignIn: true,
   },
 
-  ...(googleProvider ? { socialProviders: { google: googleProvider } } : {}),
+  ...(google ? { socialProviders: { google } } : {}),
 
   user: {
+    modelName: "users",
     additionalFields: {
-      /**
-       * `input: false` keeps role and blocked status out of the sign-up and
-       * update payloads: only the server (seed script / admin action) sets them.
-       */
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "customer",
-        input: false,
-      },
-      isBlocked: {
-        type: "boolean",
-        required: false,
-        defaultValue: false,
-        input: false,
-      },
+      role: { type: "string", defaultValue: "customer", input: false },
+      isBlocked: { type: "boolean", defaultValue: false, input: false },
+      phone: { type: "string", required: false },
     },
+  },
+
+  hooks: {
+    before: createAuthMiddleware(async (ctx) => {
+      if (ctx.path === "/sign-up/email") {
+        const body = ctx.body as { password?: unknown }
+        if (!passwordIsValid(body.password)) {
+          throw new APIError("BAD_REQUEST", { message: AUTH_MESSAGES.passwordRules })
+        }
+      }
+    }),
   },
 
   databaseHooks: {
     session: {
       create: {
-        before: async (session, ctx) => {
-          if (!ctx) return
-
-          const user = await ctx.context.internalAdapter.findUserById(
-            session.userId
-          )
+        before: async (session, context) => {
+          if (!context) return
+          const user = await context.context.internalAdapter.findUserById(session.userId)
           if ((user as { isBlocked?: boolean } | null)?.isBlocked) {
-            throw new APIError("FORBIDDEN", {
-              message: AUTH_MESSAGES.blocked,
-            })
+            throw new APIError("FORBIDDEN", { message: AUTH_MESSAGES.blocked })
           }
         },
       },
     },
   },
 
-  // `usePlural` keeps the collections aligned with the brief: users, sessions...
-  database: mongodbAdapter(db, { client, usePlural: true }),
+  plugins: [
+    jwt({
+      jwt: { expirationTime: "15m", issuer: baseURL, audience: baseURL },
+    }),
+    nextCookies(),
+  ],
 
-  // Must stay last: forwards Better Auth cookies to Next.js.
-  plugins: [nextCookies()],
+  database: mongodbAdapter(salonDb, { client: mongoClient, usePlural: true }),
 })
+
+export type Auth = typeof auth

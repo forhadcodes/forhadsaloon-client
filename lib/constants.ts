@@ -16,8 +16,9 @@ export const SITE = {
 export const ROUTES = {
   home: "/",
   services: "/services",
-  signIn: "/sign-in",
-  signUp: "/sign-up",
+  signIn: "/signin",
+  signUp: "/signup",
+  callback: "/auth/callback",
   dashboard: "/dashboard",
   adminDashboard: "/dashboard/admin",
   profile: "/dashboard/profile",
@@ -37,7 +38,7 @@ export const PUBLIC_NAV_LINKS: NavLink[] = [
 /** Where each role lands after signing in. */
 export const DASHBOARD_HOME: Record<UserRole, string> = {
   admin: ROUTES.adminDashboard,
-  customer: ROUTES.dashboard,
+  customer: "/dashboard/customer",
 }
 
 /**
@@ -49,7 +50,9 @@ export const AUTH_MESSAGES = {
   signInSuccess: "Signed in successfully.",
   invalidCredentials: "Email or password is incorrect.",
   emailTaken: "An account with this email already exists. Try signing in.",
-  passwordLength: "Password must be between 8 and 128 characters.",
+  passwordLength: "Password must have at least 6 characters, one uppercase and one lowercase letter.",
+  passwordRules: "Password must have at least 6 characters, one uppercase and one lowercase letter.",
+  sessionExpired: "Your session has expired. Please sign in again.",
   blocked: "This account has been blocked. Please contact the salon.",
   signUpError: "Could not create your account. Please try again.",
   signInError: "Could not sign you in. Please try again.",

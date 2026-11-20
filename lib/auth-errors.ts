@@ -19,7 +19,8 @@ export function getAuthErrorMessage(error: AuthErrorLike, fallback: string) {
       return AUTH_MESSAGES.emailTaken
     case "PASSWORD_TOO_SHORT":
     case "PASSWORD_TOO_LONG":
-      return AUTH_MESSAGES.passwordLength
+    case "PASSWORD_RULES":
+      return AUTH_MESSAGES.passwordRules
     case "BANNED_USER":
     case "FORBIDDEN":
       return AUTH_MESSAGES.blocked
