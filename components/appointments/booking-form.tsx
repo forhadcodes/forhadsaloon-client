@@ -16,8 +16,20 @@ import { ApiRequestError, appointmentsApi, type CreateAppointmentInput } from "@
 import { SALON_TIMEZONE, TIME_SLOTS } from "@/lib/constants"
 
 const bookingSchema = z.object({
-  appointmentDate: z.string().min(1, "Please choose an appointment date."),
-  timeSlot: z.string().min(1, "Please choose a time slot."),
+  appointmentDate: z
+    .string()
+    .min(1, "Please choose an appointment date.")
+    .refine(
+      (value) => !value || value >= todayInSalonTimezone(),
+      "Appointment date must be today or later.",
+    ),
+  timeSlot: z
+    .string()
+    .min(1, "Please choose a time slot.")
+    .refine(
+      (value) => !value || (TIME_SLOTS as readonly string[]).includes(value),
+      "Please choose a valid time slot.",
+    ),
   message: z.string().max(500, "Your message must be 500 characters or less.").optional(),
 })
 
