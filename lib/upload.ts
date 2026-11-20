@@ -33,27 +33,31 @@ export async function uploadImage(file: File, isPublic = false): Promise<string 
   const form = new FormData()
   form.append("image", file)
 
+  let response: Response
   try {
-    const response = await fetch(`${API_URL}/api/upload/${isPublic ? "public" : "image"}`, {
+    response = await fetch(`${API_URL}/api/upload/${isPublic ? "public" : "image"}`, {
       method: "POST",
       body: form,
       headers,
+      signal: AbortSignal.timeout(30_000),
     })
-    const payload = (await response.json().catch(() => ({}))) as {
-      success?: boolean
-      url?: string
-      message?: string
-      data?: { url?: string }
-    }
-
-    const url = payload.data?.url ?? payload.url
-    if (!response.ok || !url) {
-      throw new Error(payload.message ?? "Image upload failed.")
-    }
-
-    return url
-  } catch (error) {
-    toast.error(error instanceof Error ? error.message : "Image upload failed.")
+  } catch {
+    toast.error("Unable to reach the upload service. Please try again.")
     return null
   }
+
+  const payload = (await response.json().catch(() => ({}))) as {
+    success?: boolean
+    url?: string
+    message?: string
+    data?: { url?: string }
+  }
+  const url = payload.data?.url ?? payload.url
+
+  if (!response.ok || !url) {
+    toast.error(payload.message ?? "Image upload failed.")
+    return null
+  }
+
+  return url
 }

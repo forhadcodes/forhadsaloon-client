@@ -106,6 +106,13 @@ export function ProfileForm() {
     }
   }
 
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null
+    setImageFile(file)
+    // The effect above revokes the previous URL when this one replaces it.
+    setObjectUrl(file ? URL.createObjectURL(file) : null)
+  }
+
   async function onSubmit(values: ProfileValues) {
     if (uploading) return
     setFormError(null)
@@ -229,7 +236,8 @@ export function ProfileForm() {
                 id="profile-file"
                 type="file"
                 accept={ALLOWED_TYPES.join(",")}
-                onChange={(event) => setImageFile(event.target.files?.[0] ?? null)}
+                aria-label="Profile image file"
+                onChange={handleFileChange}
                 className="min-h-11 w-full rounded-xl border border-base-300 bg-base-100 p-2 text-sm"
               />
               <p className="mt-1 text-xs text-base-content/50">JPG, PNG or WebP up to 5 MB.</p>

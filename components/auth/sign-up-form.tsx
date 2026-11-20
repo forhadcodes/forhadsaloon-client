@@ -35,9 +35,20 @@ export function SignUpForm() {
     if (user) router.replace(ROUTES.callback)
   }, [user, router])
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview)
+    }
+  }, [imagePreview])
+
   const missingRules = getMissingPasswordRules(password)
 
   if (user) return null
+
+  function switchMode(mode: "url" | "upload") {
+    setImageMode(mode)
+    if (mode === "url") setImagePreview(null)
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -140,7 +151,7 @@ export function SignUpForm() {
                 type="button"
                 size="sm"
                 variant={imageMode === mode ? "primary" : "outline"}
-                onClick={() => setImageMode(mode)}
+                onClick={() => switchMode(mode)}
               >
                 {mode === "url" ? "Image URL" : "Upload"}
               </Button>
