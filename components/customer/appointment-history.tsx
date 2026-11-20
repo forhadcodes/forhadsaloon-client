@@ -6,6 +6,7 @@ import { CreditCard, Eye } from "lucide-react"
 import toast from "react-hot-toast"
 
 import { Button } from "@/components/ui/button"
+import { Spinner } from "@/components/ui/spinner"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -53,6 +54,7 @@ export function AppointmentHistory() {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [viewing, setViewing] = useState<Appointment | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
   const [cancelTarget, setCancelTarget] = useState<Appointment | null>(null)
   const [cancelling, setCancelling] = useState(false)
   const [payingId, setPayingId] = useState<string | null>(null)
@@ -88,6 +90,24 @@ export function AppointmentHistory() {
       controller.abort()
     }
   }, [status, page, reloadKey])
+
+  /** The list DTO omits the paid transaction, so fetch the full record on open. */
+  async function openDetails(appointment: Appointment) {
+    setViewing(appointment)
+    setDetailLoading(true)
+    try {
+      const fresh = await appointmentsApi.byId(appointment.id)
+      setViewing((current) => (current?.id === appointment.id ? fresh : current))
+    } catch (err) {
+      toast.error(
+        err instanceof ApiRequestError
+          ? err.message
+          : "Could not load the full appointment details.",
+      )
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
   async function cancelAppointment() {
     if (!cancelTarget) return
@@ -186,13 +206,18 @@ export function AppointmentHistory() {
             variant="outline"
             size="sm"
             aria-label={`View details for ${getService(appointment)?.serviceName ?? "appointment"}`}
-            onClick={() => setViewing(appointment)}
+            onClick={() => void openDetails(appointment)}
           >
             <Eye aria-hidden />
             View Details
           </Button>
           {appointment.status === "pending" ? (
-            <Button variant="danger" size="sm" onClick={() => setCancelTarget(appointment)}>
+            <Button
+              variant="danger"
+              size="sm"
+              aria-label={`Cancel appointment for ${getService(appointment)?.serviceName ?? "this service"}`}
+              onClick={() => setCancelTarget(appointment)}
+            >
               Cancel
             </Button>
           ) : null}
@@ -267,7 +292,12 @@ export function AppointmentHistory() {
       )}
 
       <Modal open={viewing !== null} onClose={() => setViewing(null)} title="Appointment Details">
-        {viewing ? (
+        {detailLoading ? (
+          <div className="flex items-center justify-center gap-3 py-10 text-sm text-base-content/60">
+            <Spinner />
+            Loading details...
+          </div>
+        ) : viewing ? (
           <div>
             <Detail label="Service" value={viewedService?.serviceName ?? "Service"} />
             <Detail label="Category" value={viewedService?.category ?? "—"} />
