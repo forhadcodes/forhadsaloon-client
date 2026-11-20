@@ -19,6 +19,9 @@ import type { Service } from "@/lib/types"
 import { uploadImage } from "@/lib/upload"
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
+const HTTPS_URL = /^https:\/\/\S+$/i
+/** Local salon photos used by the seeded demo services. */
+const DEMO_IMAGE_PATH = /^\/images\/[A-Za-z0-9._-]+\.(jpg|jpeg|png|webp)$/i
 
 const serviceSchema = z.object({
   serviceName: z
@@ -44,8 +47,10 @@ const serviceSchema = z.object({
     .positive("Duration must be greater than 0."),
   image: z
     .string()
-    .url("Please upload a service image.")
-    .refine((value) => value.startsWith("https://"), "Image must be a secure (https) URL."),
+    .refine(
+      (value) => DEMO_IMAGE_PATH.test(value.trim()) || HTTPS_URL.test(value.trim()),
+      "Please upload a service image.",
+    ),
   status: z.enum(SERVICE_STATUS),
 })
 

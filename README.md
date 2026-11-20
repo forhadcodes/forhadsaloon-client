@@ -28,7 +28,8 @@ Fill in `.env.local` with your own values (never commit it). Use the same `MONGO
 
 ```bash
 # 1. In the salonbook-server repo: npm install, copy .env.example to .env,
-#    then run `npm run db:indexes` once and start it with `npm run dev` (port 5000)
+#    then run `npm run db:indexes` once, `npm run db:seed:services` for demo data,
+#    and start it with `npm run dev` (port 5000)
 # 2. Create the admin account (idempotent; uses ADMIN_* values from .env.local)
 npm run seed:admin
 
