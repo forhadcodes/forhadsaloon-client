@@ -134,7 +134,11 @@ export function ProfileForm() {
         phone: values.phone.trim(),
       })
       toast.success("Your profile has been updated.")
+      // This update goes through our own whitelisted endpoint, not Better Auth's
+      // /update-user, so notify the session store explicitly. Otherwise the
+      // navbar (which uses useSession) keeps showing the old name and avatar.
       await authClient.getSession()
+      authClient.$store.notify("$sessionSignal")
       router.refresh()
     } catch (error) {
       const message =
