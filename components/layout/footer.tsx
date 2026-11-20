@@ -1,6 +1,8 @@
 import Link from "next/link"
 import { Camera, Clock3, Globe, Mail, MapPin, Phone, Play, Send } from "lucide-react"
 
+// lucide-react v1 no longer ships brand glyphs; these generic icons keep the
+// required four social links visually distinct and accessible by aria-label.
 const socialLinks = [
   { label: "Facebook", href: "https://facebook.com", icon: Globe },
   { label: "Instagram", href: "https://instagram.com", icon: Camera },
@@ -27,8 +29,8 @@ export function Footer() {
           <ul className="space-y-2 text-sm">
             <li><Link className="hover:text-primary" href="/">Home</Link></li>
             <li><Link className="hover:text-primary" href="/services">Browse Services</Link></li>
-            <li><Link className="hover:text-primary" href="/sign-in">Sign In</Link></li>
-            <li><Link className="hover:text-primary" href="/sign-up">Sign Up</Link></li>
+            <li><Link className="hover:text-primary" href="/signin">Sign In</Link></li>
+            <li><Link className="hover:text-primary" href="/signup">Sign Up</Link></li>
           </ul>
         </div>
 
