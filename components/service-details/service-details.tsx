@@ -19,7 +19,7 @@ export function ServiceDetails({ service, isAdmin }: ServiceDetailsProps) {
   const inactive = service.status === "inactive"
 
   function focusBookingForm() {
-    bookingRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
+    bookingRef.current?.scrollIntoView({ block: "center" })
     bookingRef.current?.querySelector<HTMLElement>("input, select, textarea")?.focus({
       preventScroll: true,
     })
@@ -79,9 +79,15 @@ export function ServiceDetails({ service, isAdmin }: ServiceDetailsProps) {
               <span>Admins cannot submit appointment requests.</span>
             </div>
           ) : inactive ? (
-            <p className="text-sm text-base-content/60">
-              This service is currently unavailable. Please browse our other services.
-            </p>
+            <div className="space-y-3">
+              <Button type="button" variant="brand" size="lg" disabled>
+                <CalendarPlus aria-hidden />
+                Book Appointment
+              </Button>
+              <p className="text-sm text-base-content/60">
+                This service is currently unavailable. Please browse our other services.
+              </p>
+            </div>
           ) : (
             <Button type="button" variant="brand" size="lg" onClick={focusBookingForm}>
               <CalendarPlus aria-hidden />
