@@ -1,4 +1,4 @@
-import type { BannerSlide, UserRole } from "@/lib/types"
+import type { UserRole } from "@/lib/types"
 
 /** Static site information. Replace the placeholders with real salon details. */
 export const SITE = {
@@ -61,41 +61,21 @@ export const AUTH_MESSAGES = {
 } as const
 
 /**
- * Home page hero slides. Each slide owns its copy so switching the image
- * also switches the message, instead of repeating one headline three times.
- * Photos: Unsplash (free to use under the Unsplash License).
+ * Home page hero. One local, optimised photo sits behind a dark overlay so
+ * the copy stays readable at every breakpoint.
+ * Photo: Unsplash (free to use under the Unsplash License).
  */
-export const BANNER_SLIDES: BannerSlide[] = [
-  {
-    image: "/images/banner-cuts.jpg",
-    alt: "Barbershop interior with vintage chairs and warm brick walls",
-    eyebrow: "Signature Cuts",
-    title: "Sharp Cuts, Timeless Style",
-    description:
-      "Precision fades, classic scissor work and beard shaping by stylists who sweat the details.",
+export const HERO = {
+  image: "/images/banner-color.jpg",
+  alt: "Modern salon interior with round mirrors and black styling stations",
+  eyebrow: "Welcome to SalonBook",
+  title: "Beautiful hair, booked in seconds",
+  description:
+    "Browse our services, pick a time that suits you and pay securely once your stylist confirms the appointment.",
+  cta: {
+    label: "Explore Salon Services",
+    href: ROUTES.services,
   },
-  {
-    image: "/images/banner-care.jpg",
-    alt: "Stylist blow-drying and styling a client's hair",
-    eyebrow: "Hair Care",
-    title: "Wash, Treat, Restore",
-    description:
-      "Deep-cleansing washes and scalp treatments that leave your hair softer, calmer and easier to style.",
-  },
-  {
-    image: "/images/banner-color.jpg",
-    alt: "Modern salon with round mirrors and black styling stations",
-    eyebrow: "Color & Glam",
-    title: "Color That Turns Heads",
-    description:
-      "Balayage, gloss and custom blends crafted around your skin tone, your hair and your routine.",
-  },
-]
-
-/** The one call to action every hero slide shares. */
-export const BANNER_CTA = {
-  label: "Explore Salon Services",
-  href: ROUTES.services,
 } as const
 
 /** Shared with the Express server — keep both copies identical. */

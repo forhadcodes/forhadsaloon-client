@@ -17,15 +17,6 @@ export type CurrentUser = {
   role: UserRole
 }
 
-/** One slide of the home page hero banner. */
-export type BannerSlide = {
-  image: string
-  alt: string
-  eyebrow: string
-  title: string
-  description: string
-}
-
 /** Values collected by the sign-in form (API wiring comes later). */
 export type SignInInput = {
   email: string
