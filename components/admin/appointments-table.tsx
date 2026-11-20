@@ -15,6 +15,7 @@ import { Modal } from "@/components/ui/modal"
 import { Pagination } from "@/components/ui/pagination"
 import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Spinner } from "@/components/ui/spinner"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { ApiRequestError, appointmentsApi } from "@/lib/api"
 import type { Appointment } from "@/lib/types"
@@ -76,6 +77,7 @@ export function AppointmentsTable() {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [viewing, setViewing] = useState<Appointment | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
   const [confirmTarget, setConfirmTarget] = useState<Appointment | null>(null)
   const [cancelTarget, setCancelTarget] = useState<Appointment | null>(null)
   const [action, setAction] = useState<Action | null>(null)
@@ -113,6 +115,21 @@ export function AppointmentsTable() {
       controller.abort()
     }
   }, [status, page, reloadKey])
+
+  async function openDetails(appointment: Appointment) {
+    setViewing(appointment)
+    setDetailLoading(true)
+    try {
+      const fresh = await appointmentsApi.adminById(appointment.id)
+      setViewing((current) => (current?.id === appointment.id ? fresh : current))
+    } catch (err) {
+      toast.error(
+        err instanceof ApiRequestError ? err.message : "Could not load the full appointment details.",
+      )
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
   async function runAction(target: Appointment, type: Action) {
     setAction(type)
@@ -233,7 +250,7 @@ export function AppointmentsTable() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setViewing(appointment)}
+            onClick={() => void openDetails(appointment)}
             aria-label={`View details for ${getCustomer(appointment)?.name ?? "appointment"}`}
           >
             <Eye aria-hidden />
@@ -303,7 +320,12 @@ export function AppointmentsTable() {
         onClose={() => setViewing(null)}
         title="Appointment Details"
       >
-        {viewing ? (
+        {detailLoading ? (
+          <div className="flex items-center justify-center gap-3 py-10 text-sm text-base-content/60">
+            <Spinner />
+            Loading details...
+          </div>
+        ) : viewing ? (
           <div>
             <Detail label="Customer" value={viewedCustomer?.name ?? "Unknown customer"} />
             <Detail label="Email" value={viewedCustomer?.email ?? "—"} />
