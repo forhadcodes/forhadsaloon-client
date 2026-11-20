@@ -2,10 +2,11 @@
 
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { Pencil, Search } from "lucide-react"
+import { Pencil, Search, Trash2 } from "lucide-react"
 import toast from "react-hot-toast"
 
 import { Button } from "@/components/ui/button"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { DataTable, type DataTableColumn } from "@/components/ui/data-table"
 import { EmptyState } from "@/components/ui/empty-state"
 import { ErrorState } from "@/components/ui/error-state"
@@ -16,7 +17,7 @@ import { Select } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { useDebouncedValue } from "@/hooks/use-debounced-value"
-import { ApiRequestError, api } from "@/lib/api"
+import { ApiRequestError, adminServicesApi, api } from "@/lib/api"
 import { CATEGORIES } from "@/lib/constants"
 import type { Paginated, Service } from "@/lib/types"
 import { formatPrice } from "@/lib/utils"
@@ -47,6 +48,7 @@ export function ServicesTable() {
   const [error, setError] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [pendingId, setPendingId] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<Service | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -99,6 +101,24 @@ export function ServicesTable() {
         current.map((item) => (item.id === service.id ? service : item)),
       )
       toast.error(err instanceof ApiRequestError ? err.message : "Could not update the service.")
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deleteTarget) return
+    const target = deleteTarget
+
+    setPendingId(target.id)
+    try {
+      await adminServicesApi.delete(target.id)
+      toast.success("Service deleted.")
+      setDeleteTarget(null)
+      setReloadKey((key) => key + 1)
+    } catch (err) {
+      toast.error(err instanceof ApiRequestError ? err.message : "Could not delete the service.")
+      setDeleteTarget(null)
     } finally {
       setPendingId(null)
     }
@@ -158,6 +178,16 @@ export function ServicesTable() {
             <Pencil aria-hidden />
             Edit
           </LinkButton>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-error hover:text-error"
+            aria-label={`Delete ${service.serviceName}`}
+            onClick={() => setDeleteTarget(service)}
+          >
+            <Trash2 aria-hidden />
+            Delete
+          </Button>
         </div>
       ),
     },
@@ -226,6 +256,16 @@ export function ServicesTable() {
           <Pagination page={page} pages={pages} onChange={setPage} />
         </>
       )}
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => void confirmDelete()}
+        title="Delete service?"
+        message="This cannot be undone."
+        confirmLabel="Delete"
+        loading={pendingId === deleteTarget?.id}
+      />
     </div>
   )
 }
