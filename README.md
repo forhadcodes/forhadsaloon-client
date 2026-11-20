@@ -42,7 +42,9 @@ The Stripe webhook is forwarded to the **server** repo with the Stripe CLI:
 
 ## Required Environment Variables
 
-`MONGODB_URI`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_API_URL`
+`MONGODB_URI`, `MONGODB_DB_NAME`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_API_URL`
+
+`MONGODB_DB_NAME` is optional (defaults to `forhadsaloondb`) but must match the server's value — both apps share one database.
 
 Seed script only (local, never deployed): `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
 
