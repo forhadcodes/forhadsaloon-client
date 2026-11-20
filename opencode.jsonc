@@ -1,0 +1,19 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "providers": {
+    "opencode": {
+      "models": {
+        "hy4-flash-free": {
+          "settings": {
+            "reasoningEffort": "low" // দ্রুত কাজের জন্য "low", জটিল কাজের জন্য "high" দিন
+          }
+        }
+      }
+    }
+  },
+  "agent": {
+    "build": {
+      "temperature": 0.1 // কোডিংয়ে নির্ভুলতা বাড়াতে তাপমাত্রা কম রাখুন
+    }
+  }
+}
