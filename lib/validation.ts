@@ -4,7 +4,8 @@
  */
 
 export const PASSWORD_RULES = [
-  { label: "at least 6 characters", test: (value: string) => value.length >= 6 },
+  // Mirrors `minPasswordLength` in lib/auth.ts.
+  { label: "at least 8 characters", test: (value: string) => value.length >= 8 },
   { label: "one uppercase letter", test: (value: string) => /[A-Z]/.test(value) },
   { label: "one lowercase letter", test: (value: string) => /[a-z]/.test(value) },
 ] as const

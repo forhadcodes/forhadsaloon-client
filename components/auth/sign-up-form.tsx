@@ -12,6 +12,7 @@ import {
   validatePassword,
   validateRequired,
 } from "@/lib/validation"
+import { authClient } from "@/lib/auth-client"
 
 type FieldErrors = Partial<Record<keyof SignUpInput, string>>
 
@@ -31,39 +32,44 @@ export function SignUpForm() {
   const [errors, setErrors] = useState<FieldErrors>({})
   const [collected, setCollected] = useState<SignUpInput | null>(null)
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
+  
+   const handleSignUp = async (data: { name: string; email: string; password: string; image: string }) => {
+       const { data: signUpResponse, error } = await authClient.signUp.email({
+         name: data.name, // required, The name of the user.
+         email: data.email, // required, The email address of the user.
+         password: data.password, // required, The password of the user. It should be at least 8 characters long and max 128 by default.
+         image: data.image, // An optional profile image of the user.
+         callbackURL: "/", // An optional URL to redirect to after the user signs up.
+       })
+    const hasErrors = Object.values(data).some(Boolean)
 
-    const formData = new FormData(event.currentTarget)
-    const values: SignUpInput = {
-      name: String(formData.get("name") ?? "").trim(),
-      email: String(formData.get("email") ?? "").trim(),
-      password: String(formData.get("password") ?? ""),
-      image: String(formData.get("image") ?? "").trim() || undefined,
-    }
-
-    const nextErrors: FieldErrors = {
-      name: validateRequired(values.name, "Full name") ?? undefined,
-      email: validateEmail(values.email) ?? undefined,
-      password: validatePassword(values.password) ?? undefined,
-      image: validateImage(values.image ?? "") ?? undefined,
-    }
-    const hasErrors = Object.values(nextErrors).some(Boolean)
-
-    setErrors(nextErrors)
+    setErrors(data)
     if (hasErrors) {
       setCollected(null)
       return
     }
 
     // TODO: swap for authClient.signUp.email(values) once the auth API is ready.
-    console.info("[sign-up] collected form data", values)
-    setCollected(values)
+    console.info("[sign-up] collected form data", data)
+    setCollected(data)
   }
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          const values = new FormData(event.currentTarget)
+          void handleSignUp({
+            name: String(values.get("name") ?? ""),
+            email: String(values.get("email") ?? ""),
+            password: String(values.get("password") ?? ""),
+            image: String(values.get("image") ?? ""),
+          })
+        }}
+        noValidate
+        className="space-y-4"
+      >
         <AuthField
           id="signup-name"
           name="name"

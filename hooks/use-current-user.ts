@@ -27,7 +27,7 @@ export function useCurrentUser() {
         name: sessionUser.name,
         email: sessionUser.email,
         image: sessionUser.image,
-        role: normalizeRole((sessionUser as { role?: unknown }).role),
+        role: normalizeRole(sessionUser.role),
       }
     : null
 

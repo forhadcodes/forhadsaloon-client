@@ -1,28 +1,57 @@
 "use client"
 
+import { useState } from "react"
+import { toast } from "sonner"
+
 import { Button } from "@/components/ui/button"
+import { getAuthErrorMessage } from "@/lib/auth-errors"
+import { signIn } from "@/lib/auth-client"
+import { AUTH_MESSAGES, ROUTES } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 type GoogleButtonProps = {
   label: string
+  disabled?: boolean
   className?: string
 }
 
 /**
- * Google sign-in button. UI only for now: the handler is where
- * `authClient.signIn.social({ provider: "google" })` will be called.
+ * Starts the Google OAuth flow. On success Better Auth redirects the browser,
+ * so the pending state only needs to be reset when the request itself fails.
  */
-export function GoogleButton({ label, className }: GoogleButtonProps) {
+export function GoogleButton({
+  label,
+  disabled,
+  className,
+}: GoogleButtonProps) {
+  const [isPending, setIsPending] = useState(false)
+
+  async function handleGoogleSignIn() {
+    if (isPending) return
+
+    setIsPending(true)
+    const { error } = await signIn.social({
+      provider: "google",
+      callbackURL: ROUTES.home,
+    })
+
+    if (error) {
+      toast.error(getAuthErrorMessage(error, AUTH_MESSAGES.googleError))
+      setIsPending(false)
+    }
+  }
+
   return (
     <Button
       type="button"
       variant="outline"
       size="lg"
       className={cn("h-11 w-full gap-2", className)}
-      onClick={() => console.info("[auth] Google sign-in is not connected yet")}
+      disabled={disabled || isPending}
+      onClick={() => void handleGoogleSignIn()}
     >
       <GoogleIcon />
-      {label}
+      {isPending ? AUTH_MESSAGES.pendingGoogle : label}
     </Button>
   )
 }
