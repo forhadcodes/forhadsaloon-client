@@ -27,7 +27,8 @@ Fill in `.env.local` with your own values (never commit it). Use the same `MONGO
 ## Run Locally
 
 ```bash
-# 1. Start the Express server (separate salonbook-server repo) on port 5000
+# 1. In the salonbook-server repo: npm install, copy .env.example to .env,
+#    then run `npm run db:indexes` once and start it with `npm run dev` (port 5000)
 # 2. Create the admin account (idempotent; uses ADMIN_* values from .env.local)
 npm run seed:admin
 
@@ -56,5 +57,5 @@ To be added after deployment.
 
 ## Repositories
 
-- Client: https://github.com/forhadsaloon/salonbook-client
-- Server: https://github.com/forhadsaloon/salonbook-server
+- Client: https://github.com/forhadcodes/forhadsaloon-client
+- Server: https://github.com/forhadcodes/forhadsaloon-server
