@@ -1,21 +1,7 @@
-import type { Metadata } from "next"
+import { redirect } from "next/navigation"
 
-import { AuthShell } from "@/components/auth/auth-shell"
-import { AuthTabs } from "@/components/auth/auth-tabs"
-import { SignUpForm } from "@/components/auth/sign-up-form"
+import { ROUTES } from "@/lib/constants"
 
-export const metadata: Metadata = {
-  title: "Sign Up",
-}
-
-export default function SignUpPage() {
-  return (
-    <AuthShell
-      title="Create your account"
-      subtitle="Book your first appointment in minutes."
-    >
-      <AuthTabs />
-      <SignUpForm />
-    </AuthShell>
-  )
+export default function LegacySignUpPage() {
+  redirect(ROUTES.signUp)
 }
