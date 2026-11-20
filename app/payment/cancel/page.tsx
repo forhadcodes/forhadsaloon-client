@@ -1,12 +1,20 @@
 import { redirect } from "next/navigation"
 
+import { RetryPayment } from "@/components/payment/retry-payment"
 import { LinkButton } from "@/components/ui/link-button"
 import { ROUTES } from "@/lib/constants"
 import { getSession } from "@/lib/session"
 
 const APPOINTMENTS_HREF = "/dashboard/customer/appointments"
+const OBJECT_ID = /^[a-fA-F0-9]{24}$/
 
-export default async function PaymentCancelPage() {
+export default async function PaymentCancelPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ appointment_id?: string }>
+}) {
+  const { appointment_id: appointmentId } = await searchParams
+
   const user = await getSession()
   if (!user) redirect(`${ROUTES.signIn}?redirect=${encodeURIComponent("/payment/cancel")}`)
   if (user.isBlocked) redirect(`${ROUTES.signIn}?error=blocked`)
@@ -24,9 +32,13 @@ export default async function PaymentCancelPage() {
           <LinkButton href={APPOINTMENTS_HREF} variant="primary">
             Back to My Appointments
           </LinkButton>
-          <LinkButton href={APPOINTMENTS_HREF} variant="outline">
-            Try again
-          </LinkButton>
+          {appointmentId && OBJECT_ID.test(appointmentId) ? (
+            <RetryPayment appointmentId={appointmentId} />
+          ) : (
+            <LinkButton href={APPOINTMENTS_HREF} variant="outline">
+              Try again
+            </LinkButton>
+          )}
         </div>
       </div>
     </main>
