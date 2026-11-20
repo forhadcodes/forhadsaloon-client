@@ -5,7 +5,7 @@ import { useState } from "react"
 import toast from "react-hot-toast"
 
 import { signOut } from "@/lib/auth-client"
-import { AUTH_MESSAGES, ROUTES } from "@/lib/constants"
+import { ROUTES } from "@/lib/constants"
 
 export function useSignOut() {
   const router = useRouter()

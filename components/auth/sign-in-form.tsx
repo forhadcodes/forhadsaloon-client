@@ -36,12 +36,15 @@ export function SignInForm() {
   const redirect = safeRedirect(params.get("redirect"))
 
   useEffect(() => {
-    const error = params.get("error")
-    if (error) {
-      const message = QUERY_MESSAGES[error] ?? AUTH_MESSAGES.signInError
-      setFormError(message)
-      toast.error(message)
+    const showQueryError = async () => {
+      const error = params.get("error")
+      if (error) {
+        const message = QUERY_MESSAGES[error] ?? AUTH_MESSAGES.signInError
+        setFormError(message)
+        toast.error(message)
+      }
     }
+    void showQueryError()
   }, [params])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

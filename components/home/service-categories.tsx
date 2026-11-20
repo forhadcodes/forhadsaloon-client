@@ -6,7 +6,7 @@ import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { SectionHeading } from "@/components/ui/section-heading"
 import { LinkButton } from "@/components/ui/link-button"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import {
   Scissors,
   Palette,
@@ -17,7 +17,6 @@ import {
   Flower2,
 } from "lucide-react"
 import { CATEGORIES, ROUTES } from "@/lib/constants"
-import { formatPrice } from "@/lib/utils"
 
 const ICON_MAP: Record<string, typeof Scissors> = {
   "Haircut & Styling": Scissors,
@@ -33,9 +32,8 @@ export function ServiceCategories() {
   const [categories, setCategories] = useState<{ name: string; count: number }[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const categoryFromUrl = searchParams.get("category")
 
   useEffect(() => {
     let cancelled = false
@@ -75,7 +73,7 @@ export function ServiceCategories() {
 
     void load()
     return () => { cancelled = true }
-  }, [categoryFromUrl])
+  }, [reloadKey])
 
   if (loading) {
     return (
@@ -88,7 +86,7 @@ export function ServiceCategories() {
   }
 
   if (error) {
-    return <ErrorState message={error} onRetry={() => setCategories([])} />
+    return <ErrorState message={error} onRetry={() => setReloadKey((key) => key + 1)} />
   }
 
   // empty state: if the URL filtered to a category that has 0 services

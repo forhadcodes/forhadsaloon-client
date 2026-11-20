@@ -3,15 +3,12 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import Image from "next/image"
-import { useDebouncedValue } from "@/hooks/use-debounced-value"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ErrorState } from "@/components/ui/error-state"
 import { EmptyState } from "@/components/ui/empty-state"
 import { SectionHeading } from "@/components/ui/section-heading"
 import { LinkButton } from "@/components/ui/link-button"
-import { useSearchParams, useRouter } from "next/navigation"
-import { ApiRequestError } from "@/lib/api"
-import { CATEGORIES, ROUTES } from "@/lib/constants"
+import { ROUTES } from "@/lib/constants"
 import { formatPrice } from "@/lib/utils"
 import { Service } from "@/lib/types"
 
@@ -23,8 +20,7 @@ export function FeaturedServices() {
   )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -56,7 +52,7 @@ export function FeaturedServices() {
 
     void load()
     return () => { cancelled = true }
-  }, [])
+  }, [reloadKey])
 
   const subtitle = data ? `${data.total} service${data.total === 1 ? "" : "s"} available` : ""
 
@@ -71,7 +67,7 @@ export function FeaturedServices() {
   }
 
   if (error) {
-    return <ErrorState message={error} onRetry={() => setData(null)} />
+    return <ErrorState message={error} onRetry={() => setReloadKey((key) => key + 1)} />
   }
 
   if (!data || data.items.length === 0) {
