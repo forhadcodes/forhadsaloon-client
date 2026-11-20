@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -69,20 +70,21 @@ export function UserMenu({ user }: UserMenuProps) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8} className="min-w-56">
-        <DropdownMenuLabel className="px-1.5 py-1.5">
-          <span className="block truncate text-sm font-medium text-foreground">
-            {user.name}
-          </span>
-          <span className="block truncate text-xs font-normal text-muted-foreground">
-            {user.email}
-          </span>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="px-1.5 py-1.5">
+            <span className="block truncate text-sm font-medium text-foreground">
+              {user.name}
+            </span>
+            <span className="block truncate text-xs font-normal text-muted-foreground">
+              {user.email}
+            </span>
+          </DropdownMenuLabel>
 
-        <DropdownMenuItem render={<Link href={dashboardHref} />}>
-          <LayoutDashboardIcon aria-hidden />
-          Dashboard
-        </DropdownMenuItem>
+          <DropdownMenuItem render={<Link href={dashboardHref} />}>
+            <LayoutDashboardIcon aria-hidden />
+            Dashboard
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
 
         <DropdownMenuSeparator />
         <DropdownMenuItem
